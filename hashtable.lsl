@@ -23,7 +23,7 @@
 }
 //
 
-integer SIZE = 100;
+integer SIZE = 200;
 integer R = 31;
 list data_items=[];
 integer DEBUG = TRUE;
@@ -53,10 +53,19 @@ integer hash_code(string skey)
 string search(string skey, list table)
 {
     integer hash_index = hash_code(skey);
-  
-    while((integer)llList2String(table, hash_index) != -1 && (hash_index % SIZE) <= SIZE && ((hash_index+1) % SIZE) <= SIZE) //doesn't make much sense, fix later once you know what the real problem is...
+    
+    if (hash_index == 0)
     {
-     // llOwnerSay("past while");
+     if (llJsonGetValue(llList2String(table, hash_index), ["key"]) == skey)
+     {
+        return llJsonGetValue(llList2String(table, hash_index), ["data"]);   
+     }   
+    }    
+    
+    integer list_length=llGetListLength(table);
+    while(hash_index != 0)//llList2Integer(table, hash_index) != 0 ) //doesn't make much sense, fix later once you know what the real problem is...
+    {
+       llOwnerSay("past while");
      // llOwnerSay(llList2String(table, hash_index));
         if (llJsonGetValue(llList2String(table, hash_index), ["key"]) == skey)//(llSubStringIndex( llList2String(table, hash_index), skey) != -1)
         {
@@ -64,9 +73,10 @@ string search(string skey, list table)
         }
         hash_index += 1;
         hash_index %= SIZE;
+        debug((string)hash_index);
       
     } 
-    return "";
+    return "nothing";
 }
 list insert(string skey, string data, list table)
 {
@@ -76,7 +86,7 @@ list insert(string skey, string data, list table)
     
     integer hash_index = hash_code(skey);
         
-   while( llList2String(table, hash_index) != "" && llJsonGetValue( llList2String(table, hash_index), ["key"] ) != "" )
+   while( llList2Integer(table, hash_index) != 0 && llJsonGetValue( llList2String(table, hash_index), ["key"] ) != "" )
     //( llList2String(table, hash_index) != "" && llJsonGetValue( llList2String(table, hash_index), ["key"] ) != "" )
    {
        hash_index += 1;
@@ -93,7 +103,7 @@ list init_table(list table_to_start)//initialize list with string "nulls"
     integer i = 0;
     while (i < SIZE) 
      {
-       alist = llListInsertList(alist, [""], i);
+       alist = llListInsertList(alist, [0], i);
        i++;
      } 
     
@@ -108,13 +118,17 @@ default
     state_entry()
     {   
        data_items = init_table(data_items);
+        llOwnerSay(llDumpList2String(data_items, ","));
+       debug("adding items...");
+       //llSleep(1);
        data_items = insert("Arity", "this_and_that2", data_items);
        data_items = insert("Potential Difference", "that_and_this", data_items);      
        data_items = insert("testing4_this", "testing4k", data_items);
        data_items = insert("testing", "testing this too", data_items);
        data_items = insert("testing2", "testing another", data_items);
        data_items = insert("testing3", "testing yet another", data_items);
-       
+        llOwnerSay(llDumpList2String(data_items, ","));
+      // data_items = insert("testing4", "aye", data_items);
        
      // integer i = 0; //test inserts
      // for (i; i < SIZE; i++){
@@ -123,13 +137,16 @@ default
        //    llOwnerSay(search("seven"+(string)i, data_items));
         //  }
      
+      llOwnerSay(search("testing4", data_items));
+     
       llOwnerSay(search("Arity", data_items));
       llOwnerSay(search("Potential Difference", data_items));
       llOwnerSay(search("testing4_this", data_items));
       llOwnerSay(search("testing", data_items));
       llOwnerSay(search("testing2", data_items));
       llOwnerSay(search("testing3", data_items));
-      llOwnerSay(llDumpList2String(data_items, ","));
+    
+     
      } 
     
     touch_start(integer total_number) 
