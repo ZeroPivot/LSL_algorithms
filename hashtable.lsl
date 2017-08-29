@@ -1,29 +1,20 @@
-// Poorly implemented hash table, finished working on at August 29, 2017 -- 2:34am -- By Potential.Difference (Kejento/ZeroPivot)
+//Hash Table Implementaton - v0.5 - By Potential Difference (Kejento), 2017 
 //
 // 8/29/2017 -- implemented and works, but no delete function
-                // Within the search function, the while loop doesn't make sense. Investigate (line 58 at this time)
-//
-//
+// Version: v0.5 -- Last Updated: 2017-08-29: 2:57PM
+// Version: v0.4 -- Last Updated: 2017-08-29: 7:30AM
 //
 //
 //
 
-//string to ascii
-   string ASCII = "             \n                   !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
-   integer ord(string chr)
-   {
-       if(llStringLength(chr) != 1) return -1;
-       if(chr == " ") return 32;
-       return llSubStringIndex(ASCII, chr);
-   }
-   string chr(integer i)
-   {
-     i %= 127;
-    return llGetSubString(ASCII, i, i);
-}
-//
 
-integer SIZE = 200;
+//Usage:
+        //1. list data_items = init_table(data_items) 
+        //2. data_items = insert("key", "data_string", data_items)
+        //3. string search_result = search("key", data_items); // would return "data_string"; returns NULL_STRING if could not
+        //find key.
+        
+integer SIZE = 200; //hash table length
 integer R = 31;
 list data_items=[];
 integer DEBUG = TRUE;
@@ -62,22 +53,22 @@ string search(string skey, list table)
      }   
     }    
     
-    integer list_length=llGetListLength(table);
-    while(hash_index != 0)//llList2Integer(table, hash_index) != 0 ) //doesn't make much sense, fix later once you know what the real problem is...
+
+    while(hash_index != 0) // eventually, the hash table reaches 0, O(n)--stop at that point.
     {
-       llOwnerSay("past while");
-     // llOwnerSay(llList2String(table, hash_index));
-        if (llJsonGetValue(llList2String(table, hash_index), ["key"]) == skey)//(llSubStringIndex( llList2String(table, hash_index), skey) != -1)
+
+        if (llJsonGetValue(llList2String(table, hash_index), ["key"]) == skey)
         {
             return llJsonGetValue(llList2String(table, hash_index), ["data"]);
         }
         hash_index += 1;
         hash_index %= SIZE;
-        debug((string)hash_index);
+      //  debug((string)hash_index);
       
     } 
-    return "nothing";
+    return NULL_STRING;
 }
+
 list insert(string skey, string data, list table)
 {
     string item = "[{\"key\":, \"data\":\"}]";
@@ -87,7 +78,6 @@ list insert(string skey, string data, list table)
     integer hash_index = hash_code(skey);
         
    while( llList2Integer(table, hash_index) != 0 && llJsonGetValue( llList2String(table, hash_index), ["key"] ) != "" )
-    //( llList2String(table, hash_index) != "" && llJsonGetValue( llList2String(table, hash_index), ["key"] ) != "" )
    {
        hash_index += 1;
        hash_index %= SIZE;           
@@ -113,44 +103,5 @@ list init_table(list table_to_start)//initialize list with string "nulls"
  
 set_json_val(string jsonstring)
 { } 
-default
-{
-    state_entry()
-    {   
-       data_items = init_table(data_items);
-        llOwnerSay(llDumpList2String(data_items, ","));
-       debug("adding items...");
-       //llSleep(1);
-       data_items = insert("Arity", "this_and_that2", data_items);
-       data_items = insert("Potential Difference", "that_and_this", data_items);      
-       data_items = insert("testing4_this", "testing4k", data_items);
-       data_items = insert("testing", "testing this too", data_items);
-       data_items = insert("testing2", "testing another", data_items);
-       data_items = insert("testing3", "testing yet another", data_items);
-        llOwnerSay(llDumpList2String(data_items, ","));
-      // data_items = insert("testing4", "aye", data_items);
-       
-     // integer i = 0; //test inserts
-     // for (i; i < SIZE; i++){
-          //debug("inserting");
-      //     data_items = insert("seven"+(string)i, (string)i, data_items);
-       //    llOwnerSay(search("seven"+(string)i, data_items));
-        //  }
-     
-      llOwnerSay(search("testing4", data_items));
-     
-      llOwnerSay(search("Arity", data_items));
-      llOwnerSay(search("Potential Difference", data_items));
-      llOwnerSay(search("testing4_this", data_items));
-      llOwnerSay(search("testing", data_items));
-      llOwnerSay(search("testing2", data_items));
-      llOwnerSay(search("testing3", data_items));
-    
-     
-     } 
-    
-    touch_start(integer total_number) 
-    {
-       
-    }
-}
+
+//End Hash Table Implementation
