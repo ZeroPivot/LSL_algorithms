@@ -104,4 +104,24 @@ list init_table(list table_to_start)//initialize list with string "nulls"
 set_json_val(string jsonstring)
 { } 
 
+list delete(string skey, list table)
+{
+    integer hash_index = hash_code(skey);
+
+    while (hash_index != 0) // Traverse the hash table until it reaches the end or finds the key
+    {
+        if (llJsonGetValue(llList2String(table, hash_index), ["key"]) == skey) 
+        {
+            // Found the key, now remove it
+            string removed_item = "[{\"key\":\"\", \"data\":\"\"}]"; // Replace the key and data with empty values
+            table = llListReplaceList(table, [removed_item], hash_index, hash_index);
+            return table; // Return the updated table
+        }
+        hash_index += 1;
+        hash_index %= SIZE; // Wrap around the table
+    }
+    debug("Key not found for deletion.");
+    return table; // Return the original table if the key is not found
+}
+
 //End Hash Table Implementation
